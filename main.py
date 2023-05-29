@@ -164,7 +164,7 @@ def grendMather_controller(data):
                         try:                       
                             result_description_upz, checkin, checkout = description_func.page_scraper_description(r.text, hotelid,flag_description)                           
                         except:
-                            result_description_upz = None 
+                            result_description_upz = [None] 
                                     # print(result_description_upz)                            
                         if result_description_upz is None and flag_description == True:
                             continue
@@ -190,8 +190,15 @@ def grendMather_controller(data):
         result_description_upz[0]["checkout"] = checkout
         return [result_description_upz]        
     except Exception as ex:
+        result_description_upz = [{}]
+        result_description_upz[0]["hotelid"] = hotelid
+        result_description_upz[0]["checkin"] = checkin
+        result_description_upz[0]["checkout"] = checkout
         # print(f"220____{ex}")
-        return [None] 
+        try:
+           return [result_description_upz] 
+        except:
+            return [None]
     
 # ////////// grendMather_controller block end/////////////////////////////////////
 #         
@@ -352,11 +359,11 @@ def main():
         'n1': 0,
         'n2': 0,
         'interval': 1000,
-        'from_item': 0,
-        'len_items': 326000,
+        'from_item': 2000,
+        'len_items': 100000,
         'counter': 0,
         'flag_end_cycles': False,
-        'cpu_count': 22
+        'cpu_count': 32
     }  
 
     try:
