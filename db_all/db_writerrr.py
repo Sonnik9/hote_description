@@ -46,10 +46,19 @@ def db_wrtr(total, n2):
             resDescription = remove_repetitions(resDescription)
             print(f"len_description___{len(resDescription)}")
         except:
-            pass       
+            pass  
 
         try:
-            whiteList = writerr_table(conn, cursor, resDescription)
+            resDescription2 = []       
+            for item in resDescription:
+                if "runame" in item:
+                    resDescription2.append(item)
+        
+        except Exception as ex:
+            print(f"55_writerr__{ex}")
+
+        try:
+            whiteList = writerr_table(conn, cursor, resDescription2)
         except:
             pass
 
