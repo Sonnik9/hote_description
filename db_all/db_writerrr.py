@@ -83,6 +83,7 @@ def writerr_table(conn, cursor, resDescription):
     descr_white = []
     descr_white_add = []
     descr_white_set = set()
+    descr_white_batch_set = set()
 
     try:
         query2 = "INSERT INTO upz_hotels_description (hotelid, runame, dename, frname, enusname, esname, ptptname, itname, trname, arname, zhcnname, idname) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -94,17 +95,20 @@ def writerr_table(conn, cursor, resDescription):
             try:
                 values = (item["hotelid"], item["runame"], item["dename"], item["frname"], item["enusname"], item["esname"], item["ptptname"], item["itname"], item["trname"], item["arname"], item["zhcnname"], item["idname"])
                 batch_values.append(values)
-                descr_white_set.add(item["hotelid"])
+                descr_white_batch_set.add(item["hotelid"])
 
                 if len(batch_values) >= batch_size:
                     try:
                         cursor.executemany(query2, batch_values)
                         conn.commit()
+                        descr_white_set.update(descr_white_batch_set)
+                        descr_white_batch_set =set()
                         batch_values = []
                     except Exception as ex:
                         print(f"117___{ex}")                        
                         descr_white_add = insert_rows_individually_descr(conn, cursor, query2, batch_values)
                         descr_white += descr_white_add
+                        descr_white_batch_set = set()
                         batch_values = []
                         continue                   
 
@@ -116,10 +120,12 @@ def writerr_table(conn, cursor, resDescription):
             try:
                 cursor.executemany(query2, batch_values)
                 conn.commit()
+                descr_white_set.update(descr_white_batch_set)
             except Exception as ex:
-                print(f"130___{ex}")
+                # print(f"130___{ex}")
                 descr_white_add = insert_rows_individually_descr(conn, cursor, query2, batch_values)
                 descr_white += descr_white_add
+                descr_white_batch_set = set()
     except Exception as ex:
         print(f"123___{ex}")
         pass
@@ -139,11 +145,11 @@ def insert_rows_individually_descr(conn, cursor, query, data):
         data = eval(data)
     except:
         data = data
-    for hotelid, runame, dename, frname, enusname, esnameptptname, itname, trname, arname, zhcnname, idname in data:
+    for item in data:
         try:
-            values = (hotelid, runame, dename, frname, enusname, esnameptptname, itname, trname, arname, zhcnname, idname)
+            values = item
             cursor.execute(query, values)            
-            descr_white_set.add(hotelid)
+            descr_white_set.add(item[0])
         except Exception as ex:
             # print(f"204___: {ex}")
             continue
