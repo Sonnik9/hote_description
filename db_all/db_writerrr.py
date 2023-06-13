@@ -1,3 +1,36 @@
+def connnector():
+    try:
+        import time
+        import mysql.connector
+        from mysql.connector import connect, Error 
+        import config_real
+        print('hello db_writerr')
+
+        config = {
+            'user': config_real.user,
+            'password': config_real.password,
+            'host': config_real.host,
+            'port': config_real.port,
+            'database': config_real.database,      
+        }
+        for _ in range(3):
+            try:
+                conn = mysql.connector.connect(**config)      
+                print("Writerr connection established refactor")
+                break
+            except Error as e:
+                print(f"Error connecting to MySQL: {e}")
+                time.sleep(3)
+                continue            
+        try:
+            cursor = conn.cursor() 
+        except Error as e:
+            print(f"Error connecting to MySQL: {e}")
+    except Exception as ex:
+        print(f"30_writerr__{ex}")
+
+    return conn, cursor
+
 def db_wrtr(total, n2):
     try:
         import time
@@ -33,6 +66,7 @@ def db_wrtr(total, n2):
             resDescription = []          
             whiteList = []
             n = int(int(n2)/1000)
+            len_total = len(total)
         except:
             pass
         try:
@@ -46,19 +80,10 @@ def db_wrtr(total, n2):
             resDescription = remove_repetitions(resDescription)
             print(f"len_description___{len(resDescription)}")
         except:
-            pass  
+            pass
 
         try:
-            resDescription2 = []       
-            for item in resDescription:
-                if "runame" in item:
-                    resDescription2.append(item)
-        
-        except Exception as ex:
-            print(f"55_writerr__{ex}")
-
-        try:
-            whiteList = writerr_table(conn, cursor, resDescription2)
+            whiteList = writerr_table(conn, cursor, resDescription)
         except:
             pass
 
@@ -69,14 +94,14 @@ def db_wrtr(total, n2):
             pass
 
         try:
-            checkin_checkout_updated(cursor, conn, resDescription)
+            checkin_checkout_updated(cursor, conn, len_total)
         except:
             pass
 
-        try:
-           semaforr(conn, cursor, n)
-        except:
-            pass
+        # try:
+        #    semaforr(conn, cursor, n)
+        # except:
+        #     pass
  
         try:
             cursor.close()
@@ -97,7 +122,7 @@ def writerr_table(conn, cursor, resDescription):
     try:
         query2 = "INSERT INTO upz_hotels_description (hotelid, runame, dename, frname, enusname, esname, ptptname, itname, trname, arname, zhcnname, idname) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-        batch_size = 250
+        batch_size = 350
         batch_values = []
 
         for item in resDescription:
@@ -199,51 +224,79 @@ def changing_hotelsCritery(cursor, conn, whiteList):
 
     return
 
-def checkin_checkout_updated(cursor, conn, resDescription):
-    import datetime
+def checkin_checkout_updated(cursor, conn, len_total):
     try:
-        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        query9 = "UPDATE upz_hotels SET checkin = %s, checkout = %s, updated = %s WHERE hotel_id = %s"
+        update_query = "UPDATE upz_hotels SET done = %s WHERE id = %s"
+        batch_size = 400
+        batch_values = []
 
-        for item in resDescription:
-            try:
+        for i in range(len_total):
+            value = (1, i+1)
+            batch_values.append(value)
+
+            if len(batch_values) >= batch_size:
                 try:
-                    find_query = "SELECT hotel_id FROM upz_hotels WHERE hotel_id = %s"                     
-                    cursor.execute(find_query, (item["hotelid"],))                      
-                    row = cursor.fetchone()                      
-                except Exception as ex:
-                    print(f"db_writerr__str87__{ex}")
+                    for _ in range(5):
+                        try:                        
+                            cursor.executemany(update_query, batch_values)
+                            conn.commit()
+                            batch_values = []
+                            print(f"Success batch__{i+1}")
+                            break
+                        except:
+                            try:
+                                conn, cursor = connnector()
+                                continue
+                            except:
+                                pass
 
-                if row:
-                    try:                      
-                        cursor.execute(query9, (item["checkin"], item["checkout"], current_date, item["hotelid"]))                      
-                    except Exception as ex:
-                        print(f"db_writerr__str90__{ex}")
+                except Exception as ex:
+                    print(f"Error executing update query: {ex}")
+                 
+                    batch_values = []
+
+        if batch_values:
+            try:
+                for _ in range(5):
+                    try:                        
+                        cursor.executemany(update_query, batch_values)
+                        conn.commit()
+                        batch_values = []
+                        print(f"Success batch__{len_total}")
+                        break
+                    except:
+                        try:
+                            conn, cursor = connnector()
+                            continue
+                        except:
+                            pass
 
             except Exception as ex:
-                print(f"db_writerr__str95__{ex}")
-                continue
-        conn.commit()           
+                print(f"Error executing update query: {ex}")
+                  
+
+        print("Update completed successfully.")
 
     except Exception as ex:
-        print(ex)
+        print(f"Error executing update query: {ex}")
 
+    return
 
-def semaforr(conn, cursor, n):  
-    print(n)
-    try:
-        select_queryF = "SELECT deskription_flag FROM hotels_simafor WHERE id = %s"
-        cursor.execute(select_queryF, (n,))
-        row = cursor.fetchone()
-        # print('helo simafor')
-        if row:
-            update_query = "UPDATE hotels_simafor SET deskription_flag = %s WHERE id = %s"
-            cursor.execute(update_query, (1, n))
-            conn.commit()
-    except Exception as ex:
-        print(ex)
+# def semaforr(conn, cursor, n):  
+#     print(n)
+#     try:
+#         select_queryF = "SELECT deskription_flag FROM hotels_simafor WHERE id = %s"
+#         cursor.execute(select_queryF, (n,))
+#         row = cursor.fetchone()
+#         # print('helo simafor')
+#         if row:
+#             update_query = "UPDATE hotels_simafor SET deskription_flag = %s WHERE id = %s"
+#             cursor.execute(update_query, (1, n))
+#             conn.commit()
+#     except Exception as ex:
+#         print(ex)
 
-    return 
+#     return 
 
 def remove_repetitions(data):
     unique_values = set()
@@ -254,3 +307,33 @@ def remove_repetitions(data):
             result.append(item)
             unique_values.add(unil_value)
     return result
+
+
+    # import datetime
+    # try:
+    #     current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+    #     query9 = "UPDATE upz_hotels SET done = %s WHERE id = %s"
+
+    #     for i, item in enumerate(resDescription):
+    #         try:
+    #             try:
+    #                 find_query = "SELECT id FROM upz_hotels WHERE hotel_id = %s"                     
+    #                 cursor.execute(find_query, (i+1,))                      
+    #                 row = cursor.fetchone()                      
+    #             except Exception as ex:
+    #                 print(f"db_writerr__str87__{ex}")
+
+    #             if row:
+    #                 try:                      
+    #                     cursor.execute(query9, 1, i+1)                     
+    #                 except Exception as ex:
+    #                     print(f"db_writerr__str90__{ex}")
+
+    #         except Exception as ex:
+    #             print(f"db_writerr__str95__{ex}")
+    #             continue
+    #     conn.commit()           
+
+    # except Exception as ex:
+    #     print(ex)
+

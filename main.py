@@ -10,7 +10,7 @@ import shutil
 import tempfile
 import sys
 from joblib import Parallel, delayed
-from scrapers_funcs import description_func 
+from scrapers_funcs import description_checkin 
 from db_all import db_reader, db_writerrr
 
 uagent = UserAgent()
@@ -136,69 +136,75 @@ def grendMather_controller(data):
             flag_description = False
     except:
         pass    
-
-    for _ in range(2):        
-        try:
-            result_description_upz, checkin, checkout = '', '00:00:00', '00:00:00'
-            proxy_item = {       
-                "https": f"http://{choice(prLi)}"          
-            }
-            # print(fixed_url)
+    if flag_description == False:
+        return [None]
+    else:
+        for _ in range(2):        
             try:
-                headerss=random_headers()
-                
-            except Exception as ex:
-                print(f"headers281____{ex}")
-            k = 2 / random.randrange(1, 5)
-            m = 1 / random.randrange(1, 11)
-            g = random.randrange(1, 5)
-            n = round(g + k + m, 2) 
-            time.sleep(n)  
-            try:     
-                r = requests.get(fixed_url, headers=headerss, proxies=proxy_item, timeout=(12.15, 21.15))
-                r.raise_for_status()               
-                if r.status_code == 404: 
-                    return None
-                if r.status_code == 200 and r.text is not None and r.text != '':
-                    try:                       
-                        try:                       
-                            result_description_upz, checkin, checkout = description_func.page_scraper_description(r.text, hotelid,flag_description)                           
-                        except:
-                            result_description_upz = [None] 
-                                    # print(result_description_upz)                            
-                        if result_description_upz is None and flag_description == True:
-                            continue
-                    except Exception as ex:
-                        # print(f"str225___{ex}")
-                        # continue
-                        pass
-                    break
-                else:
+                result_description_upz, checkin, checkout = '', '00:00:00', '00:00:00'
+                proxy_item = {       
+                    "https": f"http://{choice(prLi)}"          
+                }
+                # print(fixed_url)
+                try:
+                    headerss=random_headers()
+                    
+                except Exception as ex:
+                    print(f"headers281____{ex}")
+                k = 2 / random.randrange(1, 5)
+                m = 1 / random.randrange(1, 11)
+                g = random.randrange(1, 5)
+                n = round(g + k + m, 2) 
+                time.sleep(n)  
+                try:     
+                    r = requests.get(fixed_url, headers=headerss, proxies=proxy_item, timeout=(12.15, 21.15))
+                    r.raise_for_status()               
+                    if r.status_code == 404: 
+                        return [None]
+                    if r.status_code == 200 and r.text is not None and r.text != '':
+                        try:  
+                            try:                       
+                                result_description_upz = description_checkin.page_scraper_description(r.text, hotelid)                           
+                            except:
+                                result_description_upz = [None]                      
+                            # try:                       
+                            #     result_description_upz, checkin, checkout = description_checkin.page_scraper_description(r.text, hotelid,flag_description)                           
+                            # except:
+                            #     result_description_upz = [None] 
+                                        # print(result_description_upz)                            
+                            if result_description_upz is None and flag_description == True:
+                                continue
+                        except Exception as ex:
+                            # print(f"str225___{ex}")
+                            # continue
+                            pass
+                        break
+                    else:
+                        continue
+                except requests.exceptions.HTTPError as ex:
+                    print(f"str44___HTTP error occurred: {ex}") 
                     continue
-            except requests.exceptions.HTTPError as ex:
-                print(f"str44___HTTP error occurred: {ex}") 
-                continue
 
-        except Exception as ex:
-            # print(f"237____{ex}")
-            continue
+            except Exception as ex:
+                # print(f"237____{ex}")
+                continue
             # return [[None], black_list] 
       
+    # try:
+    #     # print(result_description_upz)
+    #     result_description_upz[0]["checkin"] = checkin
+    #     result_description_upz[0]["checkout"] = checkout
+    #     return [result_description_upz]        
+    # except Exception as ex:
+    #     result_description_upz = [{}]
+    #     result_description_upz[0]["hotelid"] = hotelid
+    #     result_description_upz[0]["checkin"] = checkin
+    #     result_description_upz[0]["checkout"] = checkout
+    #     # print(f"220____{ex}")
     try:
-        # print(result_description_upz)
-        result_description_upz[0]["checkin"] = checkin
-        result_description_upz[0]["checkout"] = checkout
-        return [result_description_upz]        
-    except Exception as ex:
-        result_description_upz = [{}]
-        result_description_upz[0]["hotelid"] = hotelid
-        result_description_upz[0]["checkin"] = checkin
-        result_description_upz[0]["checkout"] = checkout
-        # print(f"220____{ex}")
-        try:
-           return [result_description_upz] 
-        except:
-            return [None]
+        return [result_description_upz] 
+    except:
+        return [None]
     
 # ////////// grendMather_controller block end/////////////////////////////////////
 #         
