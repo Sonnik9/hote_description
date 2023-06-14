@@ -65,20 +65,22 @@ def db_wrtr(total, n2):
             print(len(total))
             resDescription = []          
             whiteList = []
-            n = int(int(n2)/1000)
+            # n = int(int(n2)/1000)
             len_total = len(total)
         except:
             pass
         try:
             for t in total:
                 try:
-                    resDescription += t[0]
+                    resDescription += t
                 except Exception as ex:
+                    # print(f"77__writerr__{ex}")
                     continue
 
             resDescription = list(filter(None, resDescription))
+            print(f"len_description_before__{len(resDescription)}")
             resDescription = remove_repetitions(resDescription)
-            print(f"len_description___{len(resDescription)}")
+            print(f"len_description_after__{len(resDescription)}")
         except:
             pass
 

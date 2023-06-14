@@ -10,7 +10,7 @@ import shutil
 import tempfile
 import sys
 from joblib import Parallel, delayed
-from scrapers_funcs import description_checkin 
+from scrapers_funcs import descr
 from db_all import db_reader, db_writerrr
 
 uagent = UserAgent()
@@ -125,7 +125,7 @@ def grendMather_controller(data):
         # return
     except Exception as ex:
         # print(f"str83___{ex}")
-        return [None] 
+        return None
     try:
         descriptionInd = data_upz_hotels_item_dict["description"]
     except:
@@ -137,11 +137,11 @@ def grendMather_controller(data):
     except:
         pass    
     if flag_description == False:
-        return [None]
+        return None
     else:
         for _ in range(2):        
             try:
-                result_description_upz, checkin, checkout = '', '00:00:00', '00:00:00'
+                result_description_upz = ''
                 proxy_item = {       
                     "https": f"http://{choice(prLi)}"          
                 }
@@ -160,19 +160,19 @@ def grendMather_controller(data):
                     r = requests.get(fixed_url, headers=headerss, proxies=proxy_item, timeout=(12.15, 21.15))
                     r.raise_for_status()               
                     if r.status_code == 404: 
-                        return [None]
+                        return None
                     if r.status_code == 200 and r.text is not None and r.text != '':
                         try:  
                             try:                       
-                                result_description_upz = description_checkin.page_scraper_description(r.text, hotelid)                           
+                                result_description_upz = descr.page_scraper_description(r.text, hotelid)                           
                             except:
-                                result_description_upz = [None]                      
+                                result_description_upz = None                     
                             # try:                       
                             #     result_description_upz, checkin, checkout = description_checkin.page_scraper_description(r.text, hotelid,flag_description)                           
                             # except:
                             #     result_description_upz = [None] 
                                         # print(result_description_upz)                            
-                            if result_description_upz is None and flag_description == True:
+                            if result_description_upz is None:
                                 continue
                         except Exception as ex:
                             # print(f"str225___{ex}")
@@ -202,9 +202,9 @@ def grendMather_controller(data):
     #     result_description_upz[0]["checkout"] = checkout
     #     # print(f"220____{ex}")
     try:
-        return [result_description_upz] 
+        return result_description_upz
     except:
-        return [None]
+        return None
     
 # ////////// grendMather_controller block end/////////////////////////////////////
 #         

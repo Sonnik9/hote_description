@@ -29,18 +29,18 @@ def db_opener(n1, n2):
         except Error as e:
             print(f"Error connecting to MySQL: {e}")
 
-        try:
-            query_last_item = "SELECT COUNT(*) FROM upz_hotels;"
-            cursor.execute(query_last_item)
-            last_item = cursor.fetchone()[0]
-            p2 = int(last_item) - int(n1) + 1
-            p1 = int(last_item) - int(n2) + 1
-        except:
-            pass
+        # try:
+        #     query_last_item = "SELECT COUNT(*) FROM upz_hotels;"
+        #     cursor.execute(query_last_item)
+        #     last_item = cursor.fetchone()[0]
+        #     p2 = int(last_item) - int(n1) + 1
+        #     p1 = int(last_item) - int(n2) + 1
+        # except:
+        #     pass
 
         try:
             select_query  = ("SELECT id, hotel_id, url, description FROM upz_hotels "
-            f"WHERE id BETWEEN {p1} AND {p2} "
+            f"WHERE id BETWEEN {n1} AND {n2} "
             )
             cursor.execute(select_query)
             hotels_data = cursor.fetchall()
