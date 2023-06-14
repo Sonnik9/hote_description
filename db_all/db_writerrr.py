@@ -95,10 +95,10 @@ def db_wrtr(total, n2):
         except:
             pass
 
-        try:
-            checkin_checkout_updated(cursor, conn, len_total)
-        except:
-            pass
+        # try:
+        #     checkin_checkout_updated(cursor, conn, len_total)
+        # except:
+        #     pass
 
         # try:
         #    semaforr(conn, cursor, n)
@@ -233,7 +233,7 @@ def checkin_checkout_updated(cursor, conn, len_total):
         batch_values = []
 
         for i in range(len_total):
-            value = (1, i+1)
+            value = (1, len_total-i)
             batch_values.append(value)
 
             if len(batch_values) >= batch_size:
@@ -264,7 +264,7 @@ def checkin_checkout_updated(cursor, conn, len_total):
                         cursor.executemany(update_query, batch_values)
                         conn.commit()
                         batch_values = []
-                        print(f"Success batch__{len_total}")
+                        print(f"Success batch__0")
                         break
                     except:
                         try:
